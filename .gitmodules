@@ -1,0 +1,3 @@
+[submodule "openvdb_dw"]
+	path = openvdb_dw
+	url = https://github.com/dreamworksanimation/openvdb.git
