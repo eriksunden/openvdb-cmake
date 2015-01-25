@@ -48,6 +48,7 @@ add_definitions(-DOPENVDB_USE_GLEW)
 if(NOT BUILD_SHARED_LIBS)
 add_definitions(-DGLEW_STATIC)
 endif()
+add_definitions( "/W0 /D_CRT_SECURE_NO_WARNINGS /wd4005 /wd4221 /wd4996 /nologo" )
 
 add_library(openvdb_viewer STATIC ${VIEWER_FILES})
 
@@ -82,9 +83,9 @@ if(IVW_BUILD_GLVIEWER)
        set_target_properties(openvdb_app_glviewer PROPERTIES COMPILE_DEFINITIONS_DEBUG "_CONSOLE")
        set_target_properties(openvdb_app_glviewer PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:CONSOLE")
        set_target_properties(openvdb_app_glviewer PROPERTIES COMPILE_DEFINITIONS_RELWITHDEBINFO "_CONSOLE")
-       set_target_properties(openvdb_app_glviewer PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:windows")
-       set_target_properties(openvdb_app_glviewer PROPERTIES LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:windows")
-       set_target_properties(openvdb_app_glviewer PROPERTIES LINK_FLAGS "/FORCE:MULTIPLE")
+       set_target_properties(openvdb_app_glviewer PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:CONSOLE")
+       set_target_properties(openvdb_app_glviewer PROPERTIES COMPILE_DEFINITIONS_RELEASE "_CONSOLE")
+       set_target_properties(openvdb_app_glviewer PROPERTIES LINK_FLAGS "/FORCE:MULTIPLE  /IGNORE:4006")
     endif()
 
     #--------------------------------------------------------------------
@@ -103,9 +104,9 @@ if(IVW_BUILD_GLRENDERER)
        set_target_properties(openvdb_app_glrenderer PROPERTIES COMPILE_DEFINITIONS_DEBUG "_CONSOLE")
        set_target_properties(openvdb_app_glrenderer PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:CONSOLE")
        set_target_properties(openvdb_app_glrenderer PROPERTIES COMPILE_DEFINITIONS_RELWITHDEBINFO "_CONSOLE")
-       set_target_properties(openvdb_app_glrenderer PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:windows")
-       set_target_properties(openvdb_app_glrenderer PROPERTIES LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:windows")
-       set_target_properties(openvdb_app_glrenderer PROPERTIES LINK_FLAGS "/FORCE:MULTIPLE")
+       set_target_properties(openvdb_app_glrenderer PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:CONSOLE")
+       set_target_properties(openvdb_app_glrenderer PROPERTIES COMPILE_DEFINITIONS_RELEASE "_CONSOLE")
+       set_target_properties(openvdb_app_glrenderer PROPERTIES LINK_FLAGS "/FORCE:MULTIPLE  /IGNORE:4006")
     endif()
 
     #--------------------------------------------------------------------
