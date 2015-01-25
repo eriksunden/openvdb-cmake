@@ -253,3 +253,9 @@ add_library(openvdb STATIC ${OPENVDB_SOURCE_FILES} ${OPENEXR_SOURCE_FILES} ${ZLI
 #--------------------------------------------------------------------
 # Dependency libs
 target_link_libraries(openvdb ${TBB_LIBRARIES})
+
+#--------------------------------------------------------------------
+# Add OpenGL related libs/apps if desired
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/opengl)
+    add_subdirectory(opengl)
+endif()

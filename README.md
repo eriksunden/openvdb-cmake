@@ -2,7 +2,9 @@
 
 OpenVDB is added as a submodule, thus source from dreamworksanimation/openvdb is unmodified.
 
-Minimal OpenEXR/IllmBase and zlib has been included for convenience. 
+Minimal OpenEXR/IllmBase and zlib has been included for convenience.
+
+OpenVDB:s viewer files have been modified to utilize glew.
 
 Main contribution is CMake files for easier build environment setups.
 
