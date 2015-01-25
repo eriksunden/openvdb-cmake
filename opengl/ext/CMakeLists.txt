@@ -25,12 +25,10 @@ mark_as_advanced(LIB_SUFFIX)
 
 #--------------------------------------------------------------------
 # Build GLEW and GLFW
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/glew-cmake)
-    add_subdirectory(glew-cmake)
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/glew)
+    add_subdirectory(glew)
 endif()
 
-mark_as_advanced(glew-cmake_BUILD_SHARED)
-mark_as_advanced(glew-cmake_BUILD_STATIC)
 mark_as_advanced(BUILD_SHARED_LIBS)
 
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/glfw)

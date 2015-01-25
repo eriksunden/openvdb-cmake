@@ -38,7 +38,7 @@ file(GLOB_RECURSE VIEWER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/openvdb_viewer/*)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/glfw/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/glew-cmake/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/glew/include)
 
 #--------------------------------------------------------------------
 # Add defs and create library
@@ -62,7 +62,7 @@ include_directories(${OPENGL_INCLUDE_DIR})
 #--------------------------------------------------------------------
 # Dependency libs
 if(WIN32)
-    set(GLEW_LIBRARIES optimized ${CMAKE_BINARY_DIR}/lib/Release/glew.lib debug ${CMAKE_BINARY_DIR}/lib/Debug/glewd.lib)
+    set(GLEW_LIBRARIES optimized ${CMAKE_BINARY_DIR}/opengl/ext/glew/Release/glew.lib debug ${CMAKE_BINARY_DIR}/opengl/ext/glew/Debug/glewd.lib)
     set(GLFW_LIBRARIES optimized ${CMAKE_BINARY_DIR}/opengl/ext/glfw/src/Release/glfw3.lib debug ${CMAKE_BINARY_DIR}/opengl/ext/glfw/src/Debug/glfw3.lib)
 else()
     set(GLEW_LIBRARIES optimized glew debug glew)
