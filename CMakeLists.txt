@@ -23,6 +23,25 @@
 cmake_minimum_required(VERSION 2.8.11)
 cmake_policy(VERSION 2.8.11)
 
+if(POLICY CMP0046)
+    cmake_policy(SET CMP0046 OLD) # Missing dependencies policy.
+endif()
+
+if(POLICY CMP0043)
+    cmake_policy(SET CMP0043 OLD) # If compile defs should be ignored.
+endif()
+
+if(CMAKE_VERSION VERSION_GREATER "3.0.0")
+	cmake_policy(SET CMP0042 OLD) # MacOSX rpath policy.
+endif()
+
+if (NOT CMAKE_VERSION VERSION_LESS "3.1.0")
+	# include TARGET_OBJECTS expressions in a target's SOURCES property
+	cmake_policy(SET CMP0051 NEW)
+	# only interpret if() arguments as variables or keywords when unquoted
+	cmake_policy(SET CMP0054 NEW)
+endif()
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
 # OpenVDB Package
@@ -54,7 +73,7 @@ file(GLOB_RECURSE MATH_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/openvdb_dw/openv
 file(GLOB_RECURSE METADATA_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/openvdb_dw/openvdb/metadata/*.h)
 file(GLOB_RECURSE TOOLS_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/openvdb_dw/openvdb/tools/*.h)
 file(GLOB_RECURSE TREE_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/openvdb_dw/openvdb/tree/*.h)
-file(GLOB_RECURSE UTILS_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/openvdb_dw/openvdb/utils/*.h)
+file(GLOB_RECURSE UTILS_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/openvdb_dw/openvdb/util/*.h)
 
 set(OPENVDB_HEADER_FILES 
 				openvdb_dw/openvdb/Exceptions.h
@@ -78,7 +97,7 @@ LIST(APPEND OPENVDB_HEADER_FILES 	${IO_HEADER_FILES}
 file(GLOB_RECURSE IO_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/openvdb_dw/openvdb/io/*.cc)
 file(GLOB_RECURSE MATH_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/openvdb_dw/openvdb/math/*.cc)
 file(GLOB_RECURSE METADATA_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/openvdb_dw/openvdb/metadata/*.cc)
-file(GLOB_RECURSE UTILS_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/openvdb_dw/openvdb/utils/*.cc)
+file(GLOB_RECURSE UTILS_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/openvdb_dw/openvdb/util/*.cc)
 
 set(OPENVDB_SOURCE_FILES 
 				openvdb_dw/openvdb/Grid.cc
@@ -161,21 +180,58 @@ file(GLOB_RECURSE ZLIB_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/ext/zlib/*.c)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/zlib/)
 
 #--------------------------------------------------------------------
-# Add Boost
-find_package(Boost)
+# Find Boost
+set(BOOST_ROOT $ENV{BOOST_ROOT} CACHE STRING "Boost root")
+if(NOT BOOST_LIBRARYDIR)
+  set(BOOST_LIBRARYDIR "")
+  file(GLOB children RELATIVE ${BOOST_ROOT} ${BOOST_ROOT}/*)
+  foreach(child ${children})
+    if((IS_DIRECTORY ${BOOST_ROOT}/${child}) AND (${child} MATCHES "lib(.*)"))
+        file(GLOB lib_children RELATIVE ${BOOST_ROOT}/${child} ${BOOST_ROOT}/${child}/*)
+        foreach(lib_child ${lib_children})
+            if((NOT IS_DIRECTORY ${BOOST_ROOT}/${child}/${lib_child}) AND (${lib_child} MATCHES "libboost(.*)"))
+                message("Boost libs found in ${BOOST_ROOT}\\${child}")
+                set(BOOST_LIBRARYDIR ${BOOST_ROOT}\\${child} CACHE STRING "Boost libs")
+                set(FOUND_LIB TRUE)
+            endif()
+            if(FOUND_LIB)
+                break()
+            endif()
+        endforeach()
+    endif()
+    if(FOUND_LIB)
+        break()
+    endif()
+  endforeach()
+endif()
+
+find_package(Boost COMPONENTS system thread)
+
 if(NOT Boost_FOUND)
         MESSAGE (STATUS "Boost not found.")
 endif()
+
+if(NOT Boost_LIBRARY_DIRS)
+        set(Boost_LIBRARY_DIRS ${BOOST_LIBRARYDIR})
+endif()
+
+mark_as_advanced(CLEAR Boost_INCLUDE_DIRS)
+mark_as_advanced(CLEAR Boost_LIBRARY_DIRS)
 
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
 #--------------------------------------------------------------------
-# Add Intel Threading Building Blocks
+# Find Intel Threading Building Blocks
+set(FIND_LIBRARY_USE_LIB64_PATHS ON)
 find_package(TBB)
 if(NOT TBB_FOUND)
         MESSAGE (STATUS "TBB not found.")
 endif()
+set(TBB_LIBRARIES optimized ${TBB_LIBRARY} debug ${TBB_LIBRARY_DEBUG})
+
+mark_as_advanced(CLEAR TBB_INCLUDE_DIRS)
+mark_as_advanced(CLEAR TBB_LIBRARY_DIRS)
 
 include_directories(${TBB_INCLUDE_DIRS})
 link_directories(${TBB_LIBRARY_DIRS})

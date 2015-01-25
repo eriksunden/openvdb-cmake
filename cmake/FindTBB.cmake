@@ -73,7 +73,7 @@ else ( )
     # Search for 64bit libs if FIND_LIBRARY_USE_LIB64_PATHS is set to true in the global environment, 32bit libs else
     get_property( LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS )
 
-    if( LIB64 )
+    if( LIB64 OR (CMAKE_SIZEOF_VOID_P EQUAL 8))
         set(TBB_ARCH_PLATFORM intel64)
     else( )
         set(TBB_ARCH_PLATFORM ia32)
