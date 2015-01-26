@@ -38,9 +38,9 @@ include_directories(
 # Set the compiler flags
 if(WIN32)
   add_definitions(-DGLEW_BUILD)
-else(WIN32)
+else()
   add_definitions(-DHAVE_CONFIG_H)
-endif(WIN32)
+endif()
 
 add_definitions(-DUNICODE)
 

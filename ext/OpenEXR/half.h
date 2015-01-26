@@ -87,7 +87,7 @@
 
 #include <iostream>
 
-#ifndef OPENVDB_LIB
+#ifdef OPENEXR_DLL
 #if defined(_WIN32) || defined(__WIN32__)
 		#ifdef HALF_EXPORTS
 			#define HALF_EXPORT __declspec(dllexport)

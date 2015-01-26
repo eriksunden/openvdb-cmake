@@ -1,88 +1,75 @@
-#add_subdirectory(half)
-#add_subdirectory(iex)
-#add_subdirectory(ilmimf)
-#add_subdirectory(ilmthread)
-#add_subdirectory(imath)
-
-ivw_project(openexr)
+project(openexr)
 
 #--------------------------------------------------------------------
-# Supress warnings
-if(WIN32)
-add_definitions( "/W0 /D_CRT_SECURE_NO_WARNINGS /wd4005 /wd4996 /nologo /IGNORE:4006" )
-endif()
+# Include directories
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../zlib)
 
 #--------------------------------------------------------------------
-# Add Half files
-file(GLOB_RECURSE HALF_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/half/*.h)
+# Add OpenEXR files
+
+set(HALF_HEADER_FILES
+    eLut.h
+    half.h
+    halfFunction.h
+    halfLimits.h
+    toFloat.h
+)
 set(HALF_SOURCE_FILES
-    half/eLut.cpp
-    half/half.cpp
-    half/toFloat.cpp
+    eLut.cpp
+    half.cpp
+    toFloat.cpp
 )
 
-#--------------------------------------------------------------------
-# Add Iex files
-file(GLOB_RECURSE IEX_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/iex/*.h)
-file(GLOB_RECURSE IEX_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/iex/*.cpp)
+file(GLOB_RECURSE IEX_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/Ie*.h)
+file(GLOB_RECURSE IEX_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/Ie*.cpp)
 
-#--------------------------------------------------------------------
-# Add Ilmimf files
-file(GLOB_RECURSE ILLMIMF_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/ilmimf/*.h)
-file(GLOB_RECURSE ILLMIMF_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/ilmimf/*.cpp)
+file(GLOB_RECURSE ILLMIMF_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/Imf*.h)
+file(GLOB_RECURSE ILLMIMF_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/Imf*.cpp)
+list(APPEND ILLMIMF_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/b44ExpLogTable.h)
 
-#--------------------------------------------------------------------
-# Add IlmThread files
 set(ILMTHREAD_HEADER_FILES
-    ilmthread/IlmThread.h
-    ilmthread/IlmThreadMutex.h
-    ilmthread/IlmThreadPool.h
-    ilmthread/IlmThreadSemaphore.h
+    IlmThread.h
+    IlmThreadMutex.h
+    IlmThreadPool.h
+    IlmThreadSemaphore.h
 )
 if(WIN32)
 set(ILMTHREAD_SOURCE_FILES
-    ilmthread/IlmThreadPool.cpp
-    ilmthread/IlmThreadPosix.cpp
-    ilmthread/IlmThreadPool.cpp
-    ilmthread/IlmThreadMutexWin32.cpp
-    ilmthread/IlmThreadSemaphoreWin32.cpp
-    ilmthread/IlmThreadWin32.cpp
+    IlmThreadPool.cpp
+    IlmThreadPosix.cpp
+    IlmThreadPool.cpp
+    IlmThreadMutexWin32.cpp
+    IlmThreadSemaphoreWin32.cpp
+    IlmThreadWin32.cpp
 )
 else()
 set(ILMTHREAD_SOURCE_FILES
-    ilmthread/IlmThread.cpp
-    ilmthread/IlmThreadMutex.cpp
-    ilmthread/IlmThreadMutexPosix.cpp
-    ilmthread/IlmThreadPool.cpp
-    ilmthread/IlmThreadPosix.cpp
-    ilmthread/IlmThreadPool.cpp
-    ilmthread/IlmThreadSemaphore.cpp
-    ilmthread/IlmThreadSemaphorePosix.cpp
-    ilmthread/IlmThreadSemaphorePosixCompat.cpp
+    IlmThread.cpp
+    IlmThreadMutex.cpp
+    IlmThreadMutexPosix.cpp
+    IlmThreadPool.cpp
+    IlmThreadPosix.cpp
+    IlmThreadPool.cpp
+    IlmThreadSemaphore.cpp
+    IlmThreadSemaphorePosix.cpp
+    IlmThreadSemaphorePosixCompat.cpp
 )
 endif()
 
-#--------------------------------------------------------------------
-# Add Imath files
-file(GLOB_RECURSE IMATH_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/imath/*.h)
-file(GLOB_RECURSE IMATH_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/imath/*.cpp)
+file(GLOB_RECURSE IMATH_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/Imath*.h)
+file(GLOB_RECURSE IMATH_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/Imath*.cpp)
 
-#--------------------------------------------------------------------
-# Add header files
-set(HEADER_FILES 	${CMAKE_CURRENT_SOURCE_DIR}/IlmBaseConfig.h
+set(OPENEXR_HEADER_FILES ${HALF_HEADER_FILES} ${IEX_HEADER_FILES} ${ILLMIMF_HEADER_FILES} ${ILMTHREAD_HEADER_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/IlmBaseConfig.h
     ${CMAKE_CURRENT_SOURCE_DIR}/OpenEXRConfig.h)
-ivw_group("Header Files" ${HEADER_FILES} ${HALF_HEADER_FILES} ${IEX_HEADER_FILES} ${ILLMIMF_HEADER_FILES} ${ILMTHREAD_HEADER_FILES} ${IMATH_HEADER_FILES})
-	
-#--------------------------------------------------------------------
-# Add source files
-set(SOURCE_FILES 	${CMAKE_CURRENT_SOURCE_DIR}/asd.cpp)
-ivw_group("Source Files" ${SOURCE_FILES} ${HALF_SOURCE_FILES} ${IEX_SOURCE_FILES} ${ILLMIMF_SOURCE_FILES} ${ILMTHREAD_SOURCE_FILES} ${IMATH_SOURCE_FILES})
+set(OPENEXR_SOURCE_FILES ${HALF_SOURCE_FILES} ${IEX_SOURCE_FILES} ${ILLMIMF_SOURCE_FILES} ${ILMTHREAD_SOURCE_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/asd.cpp)
 
 #--------------------------------------------------------------------
 # Define defintions
-ivw_define_standard_definitions(openexr)
 if(BUILD_SHARED_LIBS)
-    ivw_add_definition(OPENEXR_DLL)
+    add_definitions(-DOPENEXR_DLL)
+    add_definitions(-DOPENEXR_EXPORTS)
+    add_definitions(-DZLIB_DLL)
 	add_definitions(-DHALF_EXPORTS)
     add_definitions(-DIEX_EXPORTS)
 	add_definitions(-DILMIMF_EXPORTS)
@@ -92,29 +79,12 @@ endif()
 
 #--------------------------------------------------------------------
 # Create library
-#add_library(openexr ${SOURCE_FILES} ${HEADER_FILES})
-add_library(openexr ${HEADER_FILES} ${SOURCE_FILES} ${HALF_HEADER_FILES} ${HALF_SOURCE_FILES} ${IEX_HEADER_FILES} ${IEX_SOURCE_FILES} ${ILLMIMF_HEADER_FILES} ${ILLMIMF_SOURCE_FILES} ${ILMTHREAD_HEADER_FILES} ${ILMTHREAD_SOURCE_FILES} ${IMATH_HEADER_FILES} ${IMATH_SOURCE_FILES})
-
-#--------------------------------------------------------------------
-# Creates VS folder structure
-ivw_vs_folder(openexr ext/freeimagelib)
+add_library(openexr ${OPENEXR_HEADER_FILES} ${OPENEXR_SOURCE_FILES})
 
 #--------------------------------------------------------------------
 # Add dependencies
-ivw_add_dependencies(InternalZLib)
-#                  Half
-#					Iex
-#					IlmImf
-#					IlmThread
-#					IMath)
-ivw_include_directories(${IVW_EXTENSIONS_DIR}/freeimage/openexr/half)
-ivw_include_directories(${IVW_EXTENSIONS_DIR}/freeimage/openexr/imath)
-ivw_include_directories(${IVW_EXTENSIONS_DIR}/freeimage/openexr/ilmimf)
-ivw_include_directories(${IVW_EXTENSIONS_DIR}/freeimage/openexr/ilmthread)
-ivw_include_directories(${IVW_EXTENSIONS_DIR}/freeimage/openexr/iex)
-ivw_include_directories(${IVW_EXTENSIONS_DIR}/freeimage/openexr)
+add_dependencies(openexr zlib)
 
 #--------------------------------------------------------------------
-# Make package (for other projects to find)
-ivw_make_package(OpenEXR openexr)
-
+# Dependency libs
+target_link_libraries(openexr zlib)

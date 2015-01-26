@@ -29,8 +29,6 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/glew)
     add_subdirectory(glew)
 endif()
 
-mark_as_advanced(BUILD_SHARED_LIBS)
-
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/glfw)
     add_subdirectory(glfw)
 endif()

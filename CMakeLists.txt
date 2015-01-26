@@ -47,24 +47,57 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 # OpenVDB Package
 project(OpenVDB)
 
+option(BUILD_SHARED_LIBS "Build Shared Libraries" ON)
+mark_as_advanced(CLEAR BUILD_SHARED_LIBS)
+
 #--------------------------------------------------------------------
 # Suppress warnings etc
 if(WIN32)
 add_definitions( "/W0 /D_CRT_SECURE_NO_WARNINGS /wd4005 /wd4221 /wd4996 /nologo" )
     if (MSVC)
-        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+        if(BUILD_SHARED_LIBS)
+            set(BUILD_TYPE "MD")
+        else()
+            set(BUILD_TYPE "MT")
+        endif()
+        set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /${BUILD_TYPE}d" CACHE STRING "MSVC C Debug MT flags " FORCE)    
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /${BUILD_TYPE}d" CACHE STRING "MSVC CXX Debug MT flags " FORCE)
+        set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /${BUILD_TYPE}" CACHE STRING "MSVC C Release MT flags " FORCE)
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /${BUILD_TYPE}" CACHE STRING "MSVC CXX Release MT flags " FORCE)
         if (CMAKE_CL_64)
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
         endif ()
         add_definitions(-DZLIB_WINAPI)
         add_definitions(-DNOMINMAX)
-    endif ()
+    endif()
+    if(BUILD_SHARED_LIBS)
+        add_definitions(-DOPENEXR_DLL)
+        add_definitions(-DZLIB_DLL)
+        add_definitions(-DOPENVDB_DLL)
+    else()
+        add_definitions(-DOPENVDB_OPENEXR_STATICLIB)
+    endif()
+endif()
+remove_definitions(-DHAVE_CONFIG_H)
+
+#--------------------------------------------------------------------
+# Compile OpenEXR and zlib
+add_subdirectory(ext/zlib)
+add_subdirectory(ext/OpenEXR)
+
+#--------------------------------------------------------------------
+# Define defintions
+add_definitions(-DOPENVDB_TOOLS_RAYTRACER_USE_EXR)
+if(NOT BUILD_SHARED_LIBS)
+    add_definitions(-DOPENVDB_LIB)
+    add_definitions(-DOPENVDB_STATIC)
 endif()
 
 #--------------------------------------------------------------------
-# Include OpenVDB directory
+# Include directories
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/openvdb_dw/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/zlib/)
 
 #--------------------------------------------------------------------
 # Add OPENVDB header files
@@ -108,76 +141,6 @@ LIST(APPEND OPENVDB_SOURCE_FILES 	${IO_SOURCE_FILES}
 							${MATH_SOURCE_FILES} 
 							${METADATA_SOURCE_FILES}
 							${UTILS_SOURCE_FILES})
-                            
-#--------------------------------------------------------------------
-# Include ext directory
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/)
-
-#--------------------------------------------------------------------
-# Add OpenEXR files
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/OpenEXR/)
-
-set(HALF_HEADER_FILES
-    ext/OpenEXR/eLut.h
-    ext/OpenEXR/half.h
-    ext/OpenEXR/halfFunction.h
-    ext/OpenEXR/halfLimits.h
-    ext/OpenEXR/toFloat.h
-)
-set(HALF_SOURCE_FILES
-    ext/OpenEXR/eLut.cpp
-    ext/OpenEXR/half.cpp
-    ext/OpenEXR/toFloat.cpp
-)
-
-file(GLOB_RECURSE IEX_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/ext/OpenEXR/Ie*.h)
-file(GLOB_RECURSE IEX_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/ext/OpenEXR/Ie*.cpp)
-
-file(GLOB_RECURSE ILLMIMF_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/ext/OpenEXR/Imf*.h)
-file(GLOB_RECURSE ILLMIMF_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/ext/OpenEXR/Imf*.cpp)
-list(APPEND ILLMIMF_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/ext/OpenEXR/b44ExpLogTable.h)
-
-set(ILMTHREAD_HEADER_FILES
-    ext/OpenEXR/IlmThread.h
-    ext/OpenEXR/IlmThreadMutex.h
-    ext/OpenEXR/IlmThreadPool.h
-    ext/OpenEXR/IlmThreadSemaphore.h
-)
-if(WIN32)
-set(ILMTHREAD_SOURCE_FILES
-    ext/OpenEXR/IlmThreadPool.cpp
-    ext/OpenEXR/IlmThreadPosix.cpp
-    ext/OpenEXR/IlmThreadPool.cpp
-    ext/OpenEXR/IlmThreadMutexWin32.cpp
-    ext/OpenEXR/IlmThreadSemaphoreWin32.cpp
-    ext/OpenEXR/IlmThreadWin32.cpp
-)
-else()
-set(ILMTHREAD_SOURCE_FILES
-    ext/OpenEXR/IlmThread.cpp
-    ext/OpenEXR/IlmThreadMutex.cpp
-    ext/OpenEXR/IlmThreadMutexPosix.cpp
-    ext/OpenEXR/IlmThreadPool.cpp
-    ext/OpenEXR/IlmThreadPosix.cpp
-    ext/OpenEXR/IlmThreadPool.cpp
-    ext/OpenEXR/IlmThreadSemaphore.cpp
-    ext/OpenEXR/IlmThreadSemaphorePosix.cpp
-    ext/OpenEXR/IlmThreadSemaphorePosixCompat.cpp
-)
-endif()
-
-file(GLOB_RECURSE IMATH_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/ext/OpenEXR/Imath*.h)
-file(GLOB_RECURSE IMATH_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/ext/OpenEXR/Imath*.cpp)
-
-set(OPENEXR_HEADER_FILES ${HALF_HEADER_FILES} ${IEX_HEADER_FILES} ${ILLMIMF_HEADER_FILES} ${ILMTHREAD_HEADER_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/ext/OpenEXR/IlmBaseConfig.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/ext/OpenEXR/OpenEXRConfig.h)
-set(OPENEXR_SOURCE_FILES ${HALF_SOURCE_FILES} ${IEX_SOURCE_FILES} ${ILLMIMF_SOURCE_FILES} ${ILMTHREAD_SOURCE_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/ext/OpenEXR/asd.cpp)
-
-#--------------------------------------------------------------------
-# Add ZLib files
-file(GLOB_RECURSE ZLIB_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/ext/zlib/*.h)
-file(GLOB_RECURSE ZLIB_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/ext/zlib/*.c)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/zlib/)
 
 #--------------------------------------------------------------------
 # Find Boost
@@ -237,22 +200,23 @@ include_directories(${TBB_INCLUDE_DIRS})
 link_directories(${TBB_LIBRARY_DIRS})
 
 #--------------------------------------------------------------------
-# Define defintions
-remove_definitions(-DHAVE_CONFIG_H)
-add_definitions(-DOPENVDB_TOOLS_RAYTRACER_USE_EXR)
-if(NOT BUILD_SHARED_LIBS)
-    add_definitions(-DOPENVDB_LIB)
-else()
-    add_definitions(-DHALF_EXPORTS)
+# Create library
+add_library(openvdb ${OPENVDB_SOURCE_FILES} ${OPENVDB_HEADER_FILES})
+set_target_properties(openvdb PROPERTIES COMPILE_DEFINITIONS "OPENVDB_PRIVATE")
+
+ if(WIN32 AND MSVC)
+    if(NOT BUILD_SHARED_LIBS)
+       set_target_properties(openvdb PROPERTIES LINK_FLAGS "/FORCE:MULTIPLE  /IGNORE:4006")
+    endif()
 endif()
 
 #--------------------------------------------------------------------
-# Create library
-add_library(openvdb STATIC ${OPENVDB_SOURCE_FILES} ${OPENEXR_SOURCE_FILES} ${ZLIB_SOURCE_FILES} ${OPENVDB_HEADER_FILES} ${OPENEXR_HEADER_FILES} ${ZLIB_HEADER_FILES})
+# Add dependencies
+add_dependencies(openvdb openexr zlib)
 
 #--------------------------------------------------------------------
 # Dependency libs
-target_link_libraries(openvdb ${TBB_LIBRARIES})
+target_link_libraries(openvdb ${Boost_LIBRARIES} ${TBB_LIBRARIES} openexr zlib)
 
 #--------------------------------------------------------------------
 # Add OpenGL related libs/apps if desired
