@@ -1,6 +1,6 @@
 [submodule "openvdb_dw"]
 	path = openvdb_dw
-	url = https://github.com/dreamworksanimation/openvdb.git
+url=https://github.com/eriksunden/openvdb.git
 [submodule "opengl/ext/glfw"]
 	path = opengl/ext/glfw
 	url = https://github.com/glfw/glfw.git

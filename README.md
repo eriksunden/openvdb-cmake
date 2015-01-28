@@ -1,8 +1,6 @@
 # OpenVDB "easier" multi-platform building
 
-OpenVDB is added as a submodule, thus source from dreamworksanimation/openvdb is unmodified.
-
-Minimal OpenEXR/IllmBase and zlib has been included for convenience.
+OpenVDB is added as a submodule and minimal OpenEXR/IllmBase as well as zlib has been included for convenience.
 
 The directory named opengl includes glew/glfw as submodules for building openvdb:s internal opengl viewers.
 
