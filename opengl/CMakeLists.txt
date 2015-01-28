@@ -40,7 +40,7 @@ find_package(OpenGL REQUIRED)
     
 #--------------------------------------------------------------------
 # Add Viewer files
-file(GLOB_RECURSE VIEWER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/openvdb_viewer/*)
+file(GLOB_RECURSE VIEWER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/../openvdb_dw/openvdb/viewer/*)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/glfw/include)
