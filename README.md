@@ -1,10 +1,8 @@
 # OpenVDB "easier" multi-platform building
 
-OpenVDB is added as a submodule and minimal OpenEXR/IllmBase as well as zlib has been included for convenience.
+OpenVDB is added as a submodule (to own fork) and minimal OpenEXR/IllmBase as well as zlib has been included for convenience.
 
 The directory named opengl includes glew/glfw as submodules for building openvdb:s internal opengl viewers.
-
-OpenVDB:s viewer files have been modified to utilize glew.
 
 Main contribution is CMake files for easier build environment setups.
 
