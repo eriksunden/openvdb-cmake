@@ -172,7 +172,7 @@ else()
 	message(STATUS "BOOST_ROOT empty")
 endif()
 
-find_package(Boost COMPONENTS system thread)
+find_package(Boost COMPONENTS system thread math random iostream)
 
 if(NOT Boost_FOUND)
         MESSAGE (STATUS "Boost not found.")
