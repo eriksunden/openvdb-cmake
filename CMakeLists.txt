@@ -195,7 +195,7 @@ find_package(TBB)
 if(NOT TBB_FOUND)
         MESSAGE (STATUS "TBB not found.")
 endif()
-set(TBB_LIBRARIES optimized ${TBB_LIBRARY} debug ${TBB_LIBRARY_DEBUG})
+set(TBB_LIBRARIES optimized ${TBB_tbb_LIBRARY} debug ${TBB_tbb_LIBRARY_DEBUG})
 
 mark_as_advanced(CLEAR TBB_INCLUDE_DIRS)
 mark_as_advanced(CLEAR TBB_LIBRARY_DIRS)
